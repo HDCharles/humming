@@ -303,7 +303,7 @@ def save_benchmark_result(result, args, packages: list[str] | None = None):
     use_f16_accum = kwargs.get("use_f16_accum", False)
 
     data = {
-        "problem": vars(args),
+        "problem": kwargs,  # Use kwargs instead of vars(args) - enums already converted
         "device": {
             "device_name": get_device_name(),
             "memory_gbps": calculate_gpu_bandwidth(),
