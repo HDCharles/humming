@@ -2,7 +2,8 @@
 # Simple script to run all benchmarks - no arguments needed
 # Just run: ./run_all_benchmarks.sh
 
-set -e
+# Don't exit on error - we want to skip failing benchmarks and continue
+set +e
 
 # Auto-detect GPU name and compute capability
 DEVICE_NAME=$(python3 -c "import torch; print(torch.cuda.get_device_name(0).replace(' ', '-').replace('/', '-'))" 2>/dev/null || echo "unknown")
@@ -42,7 +43,7 @@ python3 -c "import vllm" 2>/dev/null && HAS_VLLM=true
 # ============================================================================
 echo "===== WfpNa16: Floating Point Weights with FP16 ====="
 
-python3 benchmarks/bench_torch_w16a16.py $SHAPE_ARGS --dtype float16 --output_file "$RESULT_DIR/torch_w16a16_float16.json"
+python3 benchmarks/bench_torch_w16a16.py $SHAPE_ARGS --dtype float16 --output_file "$RESULT_DIR/torch_w16a16_float16.json" || echo "  Skipped torch_w16a16_float16 (failed)"
 
 if [ "$HAS_VLLM" = true ]; then
     python3 benchmarks/bench_marlin.py $SHAPE_ARGS --a_dtype float16 --b_dtype float8e4m3 --bs_dtype float16 --c_dtype float16 --output_file "$RESULT_DIR/marlin_w8a16_float8e4m3_float16.json" 2>/dev/null || true
@@ -61,7 +62,7 @@ for W_BITS in 8 7 6 5 4; do
     else
         W_DTYPE="float4e2m1"
     fi
-    python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float16 --b_dtype $W_DTYPE --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a16_${W_DTYPE}_float16.json"
+    python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float16 --b_dtype $W_DTYPE --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a16_${W_DTYPE}_float16.json" || echo "  Skipped humming_w${W_BITS}a16 (failed)"
 done
 
 echo
@@ -86,7 +87,7 @@ if [ "$HAS_FP8" = true ]; then
         else
             W_DTYPE="float4e2m1"
         fi
-        python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float8e4m3 --b_dtype $W_DTYPE --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a8_${W_DTYPE}_float8e4m3.json"
+        python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float8e4m3 --b_dtype $W_DTYPE --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a8_${W_DTYPE}_float8e4m3.json" || echo "  Skipped humming_w${W_BITS}a8 (failed)"
     done
 else
     echo "  Skipped (GPU does not support FP8 - requires SM89+)"
@@ -107,7 +108,7 @@ echo "===== WintNAfp8: Integer Weights with FP8 ====="
 
 if [ "$HAS_FP8" = true ]; then
     for W_BITS in 5 4 3 2 1; do
-        python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float8e4m3 --b_dtype int${W_BITS} --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a8_int${W_BITS}_float8e4m3.json"
+        python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float8e4m3 --b_dtype int${W_BITS} --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a8_int${W_BITS}_float8e4m3.json" || echo "  Skipped humming_w${W_BITS}a8_int${W_BITS} (failed)"
     done
 else
     echo "  Skipped (GPU does not support FP8 - requires SM89+)"
@@ -121,7 +122,7 @@ echo
 echo "===== WintNAfp4: Integer Weights with FP4 ====="
 
 for W_BITS in 4 3 2 1; do
-    python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype int4 --b_dtype int${W_BITS} --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a4_int${W_BITS}_int4.json"
+    python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype int4 --b_dtype int${W_BITS} --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a4_int${W_BITS}_int4.json" || echo "  Skipped humming_w${W_BITS}a4_int${W_BITS} (failed)"
 done
 
 echo

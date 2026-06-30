@@ -1,0 +1,106 @@
+{
+    "problem": {
+        "shape_n": 8192,
+        "shape_k": 8192,
+        "a_dtype": "float16",
+        "b_dtype": "float4e2m1",
+        "bs_dtype": "float16",
+        "c_dtype": "float16",
+        "input_scale_group_size": 128,
+        "weight_scale_group_size": 128,
+        "zero_point": false,
+        "use_fp_zero_point": false,
+        "use_f16_accum": false,
+        "num_experts": 0,
+        "top_k": 0,
+        "is_moe_down": false,
+        "balanced": false,
+        "expert_max_tokens": null,
+        "gemm_type": "dense"
+    },
+    "device": {
+        "device_name": "NVIDIA H100 80GB HBM3",
+        "memory_gbps": 3352.32,
+        "compute_tops": 893.7632330204812
+    },
+    "packages": {
+        "torch": "2.11.0+cu130"
+    },
+    "result": {
+        "1": {
+            "time": 0.1449330071594825,
+            "memory_gbps": 239.00609446323506,
+            "compute_tops": 0.926067364712225
+        },
+        "2": {
+            "time": 0.142192856307933,
+            "memory_gbps": 243.84234834493301,
+            "compute_tops": 1.8878265967080363
+        },
+        "4": {
+            "time": 0.1421812121206878,
+            "memory_gbps": 244.32325116565448,
+            "compute_tops": 3.7759624073558147
+        },
+        "8": {
+            "time": 0.14196522212218265,
+            "memory_gbps": 245.61824000803318,
+            "compute_tops": 7.56341453173568
+        },
+        "16": {
+            "time": 0.14121965654601823,
+            "memory_gbps": 248.77126073842268,
+            "compute_tops": 15.206690771834692
+        },
+        "32": {
+            "time": 0.13945254151598427,
+            "memory_gbps": 255.68325691585255,
+            "compute_tops": 30.798773900493625
+        },
+        "64": {
+            "time": 0.13971361291739826,
+            "memory_gbps": 262.71066386136874,
+            "compute_tops": 61.48244550141694
+        },
+        "128": {
+            "time": 0.14045571507057686,
+            "memory_gbps": 276.253678823271,
+            "compute_tops": 122.31520216437885
+        },
+        "256": {
+            "time": 0.141672858782744,
+            "memory_gbps": 303.4858784485611,
+            "compute_tops": 242.52872895499922
+        },
+        "512": {
+            "time": 0.13998592345558783,
+            "memory_gbps": 367.06776461207744,
+            "compute_tops": 490.9027639325611
+        },
+        "1024": {
+            "time": 0.21711266384822997,
+            "memory_gbps": 313.9454640363471,
+            "compute_tops": 633.0305705616282
+        },
+        "2048": {
+            "time": 0.4364363482413632,
+            "memory_gbps": 233.0602581793848,
+            "compute_tops": 629.8235883689132
+        },
+        "4096": {
+            "time": 0.8709172167304652,
+            "memory_gbps": 193.84716337769743,
+            "compute_tops": 631.2377380158516
+        },
+        "8192": {
+            "time": 1.7176257040151197,
+            "memory_gbps": 176.4310811672229,
+            "compute_tops": 640.1345911427518
+        },
+        "16384": {
+            "time": 3.4055755827900422,
+            "memory_gbps": 167.80658720010334,
+            "compute_tops": 645.712656229005
+        }
+    }
+}
