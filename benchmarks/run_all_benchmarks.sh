@@ -19,6 +19,15 @@ else
     echo "FP8 support: NO (requires SM89+, skipping FP8 benchmarks)"
 fi
 
+# Check FP4 support (requires SM100+ - Blackwell)
+HAS_FP4=false
+if [ $SM_VERSION -ge 100 ]; then
+    HAS_FP4=true
+    echo "FP4 support: YES"
+else
+    echo "FP4 support: NO (requires SM100+ Blackwell, skipping FP4 benchmarks)"
+fi
+
 # Default dense GEMM configuration
 SHAPE_N=8192
 SHAPE_K=8192
@@ -96,9 +105,29 @@ fi
 echo
 
 # ============================================================================
-# Category 3: WfpNafp4 - Floating Point Weights with FP4 Activations (SKIP)
+# Category 3: WfpNafp4 - Floating Point Weights with FP4 Activations
 # ============================================================================
-echo "===== WfpNafp4: Skipped (requires Blackwell SM120+) ====="
+echo "===== WfpNafp4: Floating Point Weights with FP4 ====="
+
+if [ "$HAS_FP4" = true ]; then
+    for W_BITS in 8 7 6 5 4; do
+        if [ $W_BITS -eq 8 ]; then
+            W_DTYPE="float8e4m3"
+        elif [ $W_BITS -eq 7 ]; then
+            W_DTYPE="float7e3m3"
+        elif [ $W_BITS -eq 6 ]; then
+            W_DTYPE="float6e2m3"
+        elif [ $W_BITS -eq 5 ]; then
+            W_DTYPE="float5e2m2"
+        else
+            W_DTYPE="float4e2m1"
+        fi
+        python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype float4e2m1 --b_dtype $W_DTYPE --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a4_${W_DTYPE}_float4e2m1.json" || echo "  Skipped humming_w${W_BITS}a4 (failed)"
+    done
+else
+    echo "  Skipped (GPU does not support FP4 - requires SM100+)"
+fi
+
 echo
 
 # ============================================================================
@@ -117,9 +146,9 @@ fi
 echo
 
 # ============================================================================
-# Category 5: WintNAfp4 - Integer Weights with FP4 Activations
+# Category 5: WintNAint4 - Integer Weights with int4 Activations
 # ============================================================================
-echo "===== WintNAfp4: Integer Weights with FP4 ====="
+echo "===== WintNAint4: Integer Weights with int4 ====="
 
 for W_BITS in 4 3 2 1; do
     python3 benchmarks/bench_humming.py $SHAPE_ARGS --a_dtype int4 --b_dtype int${W_BITS} --bs_dtype float16 --c_dtype float16 $GROUP_SIZE $GEMM_TYPE --output_file "$RESULT_DIR/humming_w${W_BITS}a4_int${W_BITS}_int4.json" || echo "  Skipped humming_w${W_BITS}a4_int${W_BITS} (failed)"

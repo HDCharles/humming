@@ -142,12 +142,13 @@ def group_results_by_activation(results):
     groups = defaultdict(list)
 
     for (framework, w_bits, a_bits, w_type, a_type, special_format, filename), result_data in results.items():
-        # Group key: (activation_bits, weight_type, special_format)
-        # e.g., (16, 'int', None) for wNa16 integer weights
-        #       (8, 'fp', None) for wfpNa8 floating point weights
-        #       (16, 'fp', 'mxfp4') for mxfp4a16
-        #       (4, 'fp', 'nvfp4') for nvfp4
-        group_key = (a_bits, w_type, special_format)
+        # Group key: (activation_bits, weight_type, activation_type, special_format)
+        # e.g., (16, 'fp', 'fp', None) for wfpNa16 floating point weights with fp16
+        #       (8, 'fp', 'fp', None) for wfpNa8 floating point weights with fp8
+        #       (4, 'int', 'int', None) for wintNaint4 integer weights with int4
+        #       (4, 'fp', 'fp', None) for wfpNafp4 floating point weights with fp4
+        #       (16, 'fp', 'fp', 'mxfp4') for mxfp4a16
+        group_key = (a_bits, w_type, a_type, special_format)
         groups[group_key].append({
             'framework': framework,
             'w_bits': w_bits,
@@ -203,14 +204,14 @@ def create_comparison_table(group_data, metric='compute_tops'):
     return rows, sorted_data
 
 
-def format_group_title(a_bits, w_type, special_format):
+def format_group_title(a_bits, w_type, a_type, special_format):
     """Format a readable title for each group.
 
-    ONLY outputs the 5 user-requested categories:
+    Categories:
     1) WfpNAfp8 - Floating point weights with FP8 activations
     2) WfpNafp4 - Floating point weights with FP4 activations
     3) WintNAfp8 - Integer weights with FP8 activations
-    4) WintNAfp4 - Integer weights with FP4 activations
+    4) WintNAint4 - Integer weights with int4 activations
     5) WfpNa16 - Floating point weights with FP16 activations
     """
     # Handle special formats
@@ -225,20 +226,20 @@ def format_group_title(a_bits, w_type, special_format):
             return None
 
     # Category 1: WfpNAfp8 - Floating point weights with FP8 activations
-    if w_type == 'fp' and a_bits == 8:
+    if w_type == 'fp' and a_bits == 8 and a_type == 'fp':
         return "WfpNAfp8"
 
     # Category 2: WfpNafp4 - Floating point weights with FP4 activations
-    elif w_type == 'fp' and a_bits == 4:
+    elif w_type == 'fp' and a_bits == 4 and a_type == 'fp':
         return "WfpNafp4"
 
     # Category 3: WintNAfp8 - Integer weights with FP8 activations
-    elif w_type == 'int' and a_bits == 8:
+    elif w_type == 'int' and a_bits == 8 and a_type == 'fp':
         return "WintNAfp8"
 
-    # Category 4: WintNAfp4 - Integer weights with FP4 activations
-    elif w_type == 'int' and a_bits == 4:
-        return "WintNAfp4"
+    # Category 4: WintNAint4 - Integer weights with int4 activations
+    elif w_type == 'int' and a_bits == 4 and a_type == 'int':
+        return "WintNAint4"
 
     # Category 5: WfpNa16 - Floating point weights with FP16 activations
     elif w_type == 'fp' and a_bits == 16:
@@ -303,16 +304,17 @@ def main():
         output_lines.append("")
 
     # Define the required table order
+    # Format: (title, a_bits, w_type, a_type, special_format, act_label)
     required_tables = [
-        ('WfpNa16', 16, 'fp', None, 'FP16'),
-        ('WfpNAfp8', 8, 'fp', None, 'FP8'),
-        ('WfpNafp4', 4, 'fp', None, 'FP4'),
-        ('WintNAfp8', 8, 'int', None, 'FP8'),
-        ('WintNAfp4', 4, 'int', None, 'FP4'),
+        ('WfpNa16', 16, 'fp', 'fp', None, 'FP16'),
+        ('WfpNAfp8', 8, 'fp', 'fp', None, 'FP8'),
+        ('WfpNafp4', 4, 'fp', 'fp', None, 'FP4'),
+        ('WintNAfp8', 8, 'int', 'fp', None, 'FP8'),
+        ('WintNAint4', 4, 'int', 'int', None, 'int4'),
     ]
 
     # Generate tables in the specified order
-    for title, a_bits, w_type, special_format, act_label in required_tables:
+    for title, a_bits, w_type, a_type, special_format, act_label in required_tables:
         output_lines.append(f"## {title}")
         output_lines.append("")
         output_lines.append(f"**Activation Type**: {act_label}")
@@ -320,7 +322,7 @@ def main():
         output_lines.append("")
 
         # Find matching data
-        group_key = (a_bits, w_type, special_format)
+        group_key = (a_bits, w_type, a_type, special_format)
         group_data = groups.get(group_key, [])
 
         if not group_data:
@@ -345,9 +347,9 @@ def main():
             output_lines.append("")
 
     # Handle special format tables (mxfp4, nvfp4) separately
-    for (a_bits, w_type, special_format), group_data in sorted(groups.items()):
+    for (a_bits, w_type, a_type, special_format), group_data in sorted(groups.items()):
         if special_format in ['mxfp4', 'nvfp4']:
-            title = format_group_title(a_bits, w_type, special_format)
+            title = format_group_title(a_bits, w_type, a_type, special_format)
             if title is None:
                 continue
 

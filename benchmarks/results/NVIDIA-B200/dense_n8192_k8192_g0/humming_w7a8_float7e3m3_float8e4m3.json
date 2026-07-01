@@ -1,0 +1,106 @@
+{
+    "problem": {
+        "shape_n": 8192,
+        "shape_k": 8192,
+        "a_dtype": "float8e4m3",
+        "b_dtype": "float7e3m3",
+        "bs_dtype": "float16",
+        "c_dtype": "float16",
+        "input_scale_group_size": 128,
+        "weight_scale_group_size": 128,
+        "zero_point": false,
+        "use_fp_zero_point": false,
+        "use_f16_accum": false,
+        "num_experts": 0,
+        "top_k": 0,
+        "is_moe_down": false,
+        "balanced": false,
+        "expert_max_tokens": null,
+        "gemm_type": "dense"
+    },
+    "device": {
+        "device_name": "NVIDIA B200",
+        "memory_gbps": 7672.32,
+        "compute_tops": 1899039.2002210156
+    },
+    "packages": {
+        "torch": "2.11.0+cu130"
+    },
+    "result": {
+        "1": {
+            "time": 0.031221223986706643,
+            "memory_gbps": 1915.2919829619962,
+            "compute_tops": 4.298925886350489
+        },
+        "2": {
+            "time": 0.03116264056126163,
+            "memory_gbps": 1919.6894397442572,
+            "compute_tops": 8.614015088749987
+        },
+        "4": {
+            "time": 0.03115996041604312,
+            "memory_gbps": 1921.4483972570765,
+            "compute_tops": 17.229512002960853
+        },
+        "8": {
+            "time": 0.031236969190502843,
+            "memory_gbps": 1919.8912555906195,
+            "compute_tops": 34.374071871430345
+        },
+        "16": {
+            "time": 0.031415487847891145,
+            "memory_gbps": 1915.304969680396,
+            "compute_tops": 68.35748209283835
+        },
+        "32": {
+            "time": 0.03484913673780976,
+            "memory_gbps": 1737.992893645681,
+            "compute_tops": 123.24458216321187
+        },
+        "64": {
+            "time": 0.048909195975035354,
+            "memory_gbps": 1254.614286264714,
+            "compute_tops": 175.63025563504556
+        },
+        "128": {
+            "time": 0.08241524339274124,
+            "memory_gbps": 763.8322888887382,
+            "compute_tops": 208.45499542033903
+        },
+        "256": {
+            "time": 0.1499543997262596,
+            "memory_gbps": 441.0001981983828,
+            "compute_tops": 229.13457978374353
+        },
+        "512": {
+            "time": 0.28268698703976425,
+            "memory_gbps": 256.4211135399862,
+            "compute_tops": 243.093880817137
+        },
+        "1024": {
+            "time": 0.5497127055350018,
+            "memory_gbps": 154.99168045802975,
+            "compute_tops": 250.01960494662217
+        },
+        "2048": {
+            "time": 1.0776605007371731,
+            "memory_gbps": 102.65650817147365,
+            "compute_tops": 255.06911198468342
+        },
+        "4096": {
+            "time": 2.1368150581201957,
+            "memory_gbps": 75.57266099671808,
+            "compute_tops": 257.27814477853434
+        },
+        "8192": {
+            "time": 4.25855276480965,
+            "memory_gbps": 61.804252884903356,
+            "compute_tops": 258.18903474949576
+        },
+        "16384": {
+            "time": 8.500844190860617,
+            "memory_gbps": 54.89106793671981,
+            "compute_tops": 258.6829267987528
+        }
+    }
+}
