@@ -14,8 +14,10 @@ def tops_bench(dtype: str, mma_type: str | None = None, use_f16_accum: bool = Fa
         mma_shape_n = 8
         mma_shape_k = 256 // dtypes.DataType.from_str(dtype).num_bits
     else:
-        mma_shape_m = 64
-        mma_shape_n = 256
+        # For wgmma, use m=256, n=64 which swaps to valid PTX m=64, n=256
+        # (wgmma PTX gen swaps m<->n, and PTX requires m=64 for SM90)
+        mma_shape_m = 256
+        mma_shape_n = 64
         mma_shape_k = 256 // dtypes.DataType.from_str(dtype).num_bits
 
     if "float" in dtype:
